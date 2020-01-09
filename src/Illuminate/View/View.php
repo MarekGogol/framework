@@ -125,6 +125,11 @@ class View implements ArrayAccess, Htmlable, ViewContract
 
         $contents = $this->getContents();
 
+        //Apply callback on each recusive views
+        if ( $viewCallback = $this->getViewsCallback() ) {
+            $contents = $viewCallback($contents);
+        }
+
         // Once we've finished rendering the view, we'll decrement the render count
         // so that each sections get flushed out next time a view is created and
         // no old sections are staying around in the memory of an environment.
@@ -280,6 +285,30 @@ class View implements ArrayAccess, Htmlable, ViewContract
     public function setPath($path)
     {
         $this->path = $path;
+    }
+
+    /**
+     * Set recursive callback for every view
+     *
+     * @param  callable  $callback
+     */
+    public function setViewsCallback(callable $callback)
+    {
+        $this->factory->share('__viewsCallback', $callback);
+
+        return $this;
+    }
+
+    /**
+     * Get recursive view callback
+     *
+     * @return callable|null
+     */
+    public function getViewsCallback()
+    {
+        $shared = $this->factory->getShared();
+
+        return array_key_exists('__viewsCallback', $shared) ? $shared['__viewsCallback'] : null;
     }
 
     /**

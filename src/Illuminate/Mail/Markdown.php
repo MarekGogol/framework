@@ -61,7 +61,9 @@ class Markdown
 
         $contents = $this->view->replaceNamespace(
             'mail', $this->htmlComponentPaths()
-        )->make($view, $data)->render();
+        )->make($view, $data)->setViewsCallback(function($contents){
+            return preg_replace('/^\s+/m', '', $contents);
+        })->render();
 
         $theme = Str::contains($this->theme, '::')
             ? $this->theme
